@@ -1,102 +1,118 @@
 // public/js/chat.js
+console.log("✅ El archivo chat.js se ha cargado correctamente en el navegador.");
 
 // Capturamos los elementos del DOM
 const chatForm = document.getElementById('chat-form');
-const messageInput = document.getElementById('message-input');
+//const messageInput = document.getElementById('message-input');
 const messageContainer = document.getElementById('message-container');
-const fileUpload = document.getElementById('file-upload'); // Elemento para adjuntar archivos
+const fileUpload = document.getElementById('file-upload');
+const btnLeave = document.getElementById('btn-leave');
 
 // ==========================================
 // 1. EVENTO: ENVIAR MENSAJE DE TEXTO
 // ==========================================
-chatForm.addEventListener('submit', (e) => {
-    e.preventDefault(); 
+if (chatForm) {
+    chatForm.addEventListener('submit', (e) => {
+        e.preventDefault(); // ¡Esto bloquea la recarga de la página!
+        
+        const msgText = messageInput.value.trim();
 
-    const msgText = messageInput.value.trim();
+        if (msgText && typeof socket !== 'undefined') {
+            const messageData = {
+                username: currentUser || 'Usuario', 
+                room: currentRoom || 'General',     
+                text: msgText,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
 
-    if (msgText) {
-        const messageData = {
-            username: currentUser, 
-            room: currentRoom,     
-            text: msgText,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        };
-
-        socket.emit('chatMessage', messageData);
-
-        messageInput.value = '';
-        messageInput.focus();
-    }
-});
+            socket.emit('chatMessage', messageData);
+            messageInput.value = '';
+            messageInput.focus();
+        }
+    });
+}
 
 // ==========================================
 // 2. EVENTO: ENVIAR ARCHIVO ADJUNTO
 // ==========================================
-fileUpload.addEventListener('change', (e) => {
-    const file = e.target.files[0]; 
-    
-    if (file) {
-        const reader = new FileReader();
+if (fileUpload) {
+    fileUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0]; 
         
-        reader.onload = function(evt) {
-            const messageData = {
-                username: currentUser,
-                room: currentRoom,
-                text: `ha enviado un archivo adjunto.`,
-                file: evt.target.result, // El archivo convertido a Base64
-                fileName: file.name,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        if (file && typeof socket !== 'undefined') {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const messageData = {
+                    username: currentUser,
+                    room: currentRoom,
+                    text: `ha enviado un archivo adjunto.`,
+                    file: evt.target.result, 
+                    fileName: file.name,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+                socket.emit('chatMessage', messageData);
             };
-            socket.emit('chatMessage', messageData);
-        };
-        
-        reader.readAsDataURL(file);
-        fileUpload.value = ''; 
-    }
-});
+            reader.readAsDataURL(file);
+            fileUpload.value = ''; 
+        }
+    });
+}
 
 // ==========================================
-// 3. EVENTO: RECIBIR MENSAJE DEL SERVIDOR
+// 3. EVENTOS DE SOCKET (Solo si el socket existe)
 // ==========================================
-socket.on('message', (messageData) => {
-    outputMessage(messageData);
+if (typeof socket !== 'undefined') {
     
-    if (typeof saveMessageToHistory === 'function') {
-        saveMessageToHistory(messageData);
-    }
+    socket.on('message', (messageData) => {
+        outputMessage(messageData);
+        if (typeof saveMessageToHistory === 'function') {
+            saveMessageToHistory(messageData);
+        }
+        if (messageData.username !== currentUser && typeof playSound === 'function') {
+            playSound();
+        }
+        if (messageContainer) messageContainer.scrollTop = messageContainer.scrollHeight;
+    });
 
-    // Reproducimos sonido si el mensaje es de otra persona
-    if (messageData.username !== currentUser && typeof playSound === 'function') {
-        playSound();
-    }
-    
-    messageContainer.scrollTop = messageContainer.scrollHeight;
-});
+    socket.on('notification', (data) => {
+        const div = document.createElement('div');
+        div.classList.add('message', 'system-msg');
+        div.innerHTML = `<p>${data.message}</p>`;
+        if (messageContainer) {
+            messageContainer.appendChild(div);
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+        if (typeof playSound === 'function') playSound();
+    });
+
+    socket.on('roomUsers', (userCount) => {
+        const onlineUsersSpan = document.getElementById('online-users');
+        if (onlineUsersSpan) {
+            onlineUsersSpan.innerText = `Usuarios conectados: ${userCount}`;
+        }
+    });
+} else {
+    console.error("❌ ERROR CRÍTICO: La variable 'socket' no existe. ¿Se cargó socket.io.js?");
+}
 
 // ==========================================
-// 4. EVENTO: RECIBIR NOTIFICACIÓN (EJ. ENTRADAS/SALIDAS)
+// 4. FUNCIONALIDAD: SALIR DE LA SALA
 // ==========================================
-socket.on('notification', (data) => {
-    const div = document.createElement('div');
-    div.classList.add('message', 'system-msg');
-    div.innerHTML = `<p>${data.message}</p>`;
-    messageContainer.appendChild(div);
-    messageContainer.scrollTop = messageContainer.scrollHeight;
-
-    // Reproducimos sonido en eventos del sistema
-    if (typeof playSound === 'function') {
-        playSound();
-    }
-});
+if (btnLeave) {
+    btnLeave.addEventListener('click', () => {
+        window.location.reload(); // Recarga la página y te devuelve al login limpiamente
+    });
+}
 
 // ==========================================
-// FUNCIÓN AUXILIAR: RENDERIZAR MENSAJES (Y ARCHIVOS)
+// FUNCIÓN AUXILIAR: RENDERIZAR MENSAJES
 // ==========================================
 function outputMessage(messageData) {
-    const div = document.createElement('div');
+    if (!messageContainer) return;
     
-    // Verificamos si el mensaje contiene un archivo adjunto
+    const div = document.createElement('div');
     let fileHTML = '';
+    
     if (messageData.file) {
         if (messageData.file.startsWith('data:image')) {
             fileHTML = `<br><img src="${messageData.file}" style="max-width: 100%; border-radius: 5px; margin-top: 5px;">`;

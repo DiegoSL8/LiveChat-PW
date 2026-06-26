@@ -31,26 +31,30 @@ io.on('connection', (socket) => {
     // EVENTO: UNIRSE A UNA SALA
     // ==========================================
     socket.on('joinRoom', ({ username, room }) => {
-        // Guardamos el nombre y la sala en la sesión de este socket para saber quién es cuando se desconecte
+        // Guardamos el nombre y la sala en la sesión de este socket 
         socket.username = username;
         socket.room = room;
 
-        // socket.join(room) agrupa a los usuarios en "habitaciones" separadas
+        // Agrupamos al usuario en la "habitación" correspondiente
         socket.join(room);
         console.log(`[ROOM] ${username} se unió a la sala: ${room}`);
 
-        // Notificamos a todos en esa sala (EXCEPTO al que acaba de entrar) que alguien nuevo llegó
+        // Notificamos a todos en esa sala (EXCEPTO al que acaba de entrar)
         socket.to(room).emit('notification', {
             type: 'join',
             message: `${username} se ha unido a la sala.`
         });
+
+        // Contamos cuántos usuarios hay en la sala y enviamos el número actualizado a TODOS
+        const roomUsers = io.sockets.adapter.rooms.get(room)?.size || 0;
+        io.to(room).emit('roomUsers', roomUsers);
     });
 
     // ==========================================
-    // EVENTO: RECIBIR Y RETRANSMITIR MENSAJES (¡Esto faltaba!)
+    // EVENTO: RECIBIR Y RETRANSMITIR MENSAJES
     // ==========================================
     socket.on('chatMessage', (messageData) => {
-        // io.to().emit retransmite el mensaje a TODOS los miembros de la sala (incluyendo al que lo envió)
+        // Retransmitimos el mensaje a TODOS los miembros de la sala
         io.to(messageData.room).emit('message', messageData);
     });
 
@@ -60,12 +64,17 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log(`[-] Usuario desconectado: ${socket.id}`);
         
-        // Si el usuario ya se había unido a una sala antes de irse, notificamos a los demás
+        // Si el usuario ya se había unido a una sala antes de irse, notificamos y actualizamos
         if (socket.username && socket.room) {
-            io.to(socket.room).emit('notification', {
+            // Avisar que se fue
+            socket.to(socket.room).emit('notification', {
                 type: 'leave',
                 message: `${socket.username} ha abandonado la sala.`
             });
+
+            // Actualizamos el contador de usuarios para los que se quedan en la sala
+            const roomUsers = io.sockets.adapter.rooms.get(socket.room)?.size || 0;
+            io.to(socket.room).emit('roomUsers', roomUsers);
         }
     });
 });
