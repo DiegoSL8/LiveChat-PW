@@ -241,3 +241,27 @@ body {
 .action-btn:hover {
     opacity: 1;
 }
+/* =========================================
+   ESTILOS: TOAST NOTIFICATIONS
+   ========================================= */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-size: 0.95rem;
+    font-weight: 500;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateX(100%); /* Comienza fuera de la pantalla */
+    transition: all 0.3s ease-in-out;
+}
+
+.toast-notification.show {
+    opacity: 1;
+    transform: translateX(0); /* Se desliza hacia adentro */
+}
