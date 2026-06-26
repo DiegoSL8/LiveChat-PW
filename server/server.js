@@ -27,22 +27,46 @@ io.on('connection', (socket) => {
     // Este evento se dispara cada vez que un usuario abre la página
     console.log(`[+] Nuevo usuario conectado: ${socket.id}`);
 
-    // Evento personalizado: Un usuario solicita unirse a una sala
+    // ==========================================
+    // EVENTO: UNIRSE A UNA SALA
+    // ==========================================
     socket.on('joinRoom', ({ username, room }) => {
-        // socket.join(room) es una función nativa de Socket.IO para agrupar usuarios
+        // Guardamos el nombre y la sala en la sesión de este socket para saber quién es cuando se desconecte
+        socket.username = username;
+        socket.room = room;
+
+        // socket.join(room) agrupa a los usuarios en "habitaciones" separadas
         socket.join(room);
         console.log(`[ROOM] ${username} se unió a la sala: ${room}`);
 
         // Notificamos a todos en esa sala (EXCEPTO al que acaba de entrar) que alguien nuevo llegó
         socket.to(room).emit('notification', {
             type: 'join',
-            message: `${username} se ha unido a la sala ${room}.`
+            message: `${username} se ha unido a la sala.`
         });
     });
 
-    // Evento nativo: El usuario cierra la pestaña o pierde conexión
+    // ==========================================
+    // EVENTO: RECIBIR Y RETRANSMITIR MENSAJES (¡Esto faltaba!)
+    // ==========================================
+    socket.on('chatMessage', (messageData) => {
+        // io.to().emit retransmite el mensaje a TODOS los miembros de la sala (incluyendo al que lo envió)
+        io.to(messageData.room).emit('message', messageData);
+    });
+
+    // ==========================================
+    // EVENTO: DESCONEXIÓN Y ABANDONO DE SALA
+    // ==========================================
     socket.on('disconnect', () => {
         console.log(`[-] Usuario desconectado: ${socket.id}`);
+        
+        // Si el usuario ya se había unido a una sala antes de irse, notificamos a los demás
+        if (socket.username && socket.room) {
+            io.to(socket.room).emit('notification', {
+                type: 'leave',
+                message: `${socket.username} ha abandonado la sala.`
+            });
+        }
     });
 });
 

@@ -1,8 +1,10 @@
+// public/js/auth.js
+
 // =========================================
 // 1. LÓGICA DE AUTENTICACIÓN Y VISTAS
 // =========================================
 
-// Variables globales para usarlas luego con Socket.IO
+// Variables globales para usarlas luego con Socket.IO y otros scripts
 let currentUser = '';
 let currentRoom = '';
 
@@ -24,14 +26,26 @@ loginForm.addEventListener('submit', (e) => {
         chatView.classList.remove('hidden');
 
         // Actualizamos el nombre de la sala en la cabecera del chat
-        // Capitalizamos la primera letra para que se vea mejor (ej: "general" -> "General")
         const roomFormatted = currentRoom.charAt(0).toUpperCase() + currentRoom.slice(1);
         roomNameDisplay.innerText = `Sala: ${roomFormatted}`;
 
         console.log(`Usuario ${currentUser} conectado a la sala ${currentRoom}`);
         
-        // TODO: Aquí tu compañero conectará la lógica de Socket.IO
-        // ej: socket.emit('joinRoom', { username: currentUser, room: currentRoom });
+        // =========================================
+        // CONEXIÓN WEB-SOCKET E HISTORIAL (AQUÍ ESTÁ LA MAGIA)
+        // =========================================
+        
+        // 1. Le avisamos al servidor que nos unimos a esta sala
+        socket.emit('joinRoom', { username: currentUser, room: currentRoom });
+
+        // 2. Limpiamos el contenedor de mensajes por si había cosas de una sesión anterior
+        const msgContainer = document.getElementById('message-container');
+        if(msgContainer) msgContainer.innerHTML = '';
+
+        // 3. Cargamos el historial guardado en localStorage (Esta función vive en utils.js)
+        if (typeof loadRoomHistory === 'function') {
+            loadRoomHistory(currentRoom);
+        }
     }
 });
 
@@ -52,7 +66,7 @@ const emojiPicker = document.createElement('div');
 emojiPicker.id = 'emoji-picker';
 emojiPicker.classList.add('hidden');
 
-// Estilos directos para el panel de emojis (puedes mover esto a styles.css si prefieres)
+// Estilos directos para el panel de emojis
 Object.assign(emojiPicker.style, {
     position: 'absolute',
     bottom: '70px',
@@ -70,7 +84,7 @@ const messageInput = document.getElementById('message-input');
 
 basicEmojis.forEach(shortcode => {
     const span = document.createElement('span');
-    // Convertimos el texto (ej. :smile:) a un emoji visual nativo
+    // Convertimos el texto a un emoji visual nativo
     span.innerHTML = emojiConvertor.replace_colons(shortcode); 
     span.style.cursor = 'pointer';
     span.style.fontSize = '1.5rem';
@@ -78,8 +92,8 @@ basicEmojis.forEach(shortcode => {
     // Evento para agregar el emoji al input de texto
     span.addEventListener('click', () => {
         messageInput.value += span.innerHTML;
-        messageInput.focus(); // Devolvemos el cursor al input para seguir escribiendo
-        emojiPicker.classList.add('hidden'); // Ocultamos el panel tras elegir
+        messageInput.focus(); 
+        emojiPicker.classList.add('hidden'); 
     });
     
     emojiPicker.appendChild(span);

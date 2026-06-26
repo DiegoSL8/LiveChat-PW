@@ -39,9 +39,12 @@
             <header class="chat-header">
                 <div class="room-info">
                     <h3 id="current-room-name">Sala: General</h3>
-                    <span id="online-users">Usuarios conectados: 0</span>
+                    <input type="text" id="search-history" placeholder="Buscar en historial..." style="padding: 5px; border-radius: 5px; border: none; font-size: 0.8rem; margin-top: 5px; width: 100%;">
                 </div>
-                <button id="btn-leave" class="btn-secondary">Salir de la sala</button>
+                <div style="text-align: right;">
+                    <span id="online-users" style="display: block; margin-bottom: 5px;">Usuarios conectados: 0</span>
+                    <button id="btn-leave" class="btn-secondary">Salir de la sala</button>
+                </div>
             </header>
 
             <main class="chat-messages" id="message-container">
@@ -56,7 +59,7 @@
                     <label for="file-upload" class="action-btn" title="Adjuntar archivo">
                         📎
                     </label>
-                    <input type="file" id="file-upload" class="hidden-input">
+                    <input type="file" id="file-upload" class="hidden-input" accept="image/*,.pdf,.doc,.docx,.zip">
 
                     <button type="button" id="btn-emoji" class="action-btn" title="Insertar emoji">
                         😊
@@ -72,15 +75,11 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/emoji-js@3.8.0/lib/emoji.min.js"></script>
-    
     <script src="/socket.io/socket.io.js"></script>
     
     <script src="./js/socket.js"></script>
-    
     <script src="./js/auth.js"></script>
-    
     <script src="./js/chat.js"></script>
-
     <script src="./js/utils.js"></script>
 
 </body>
