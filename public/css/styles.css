@@ -1,0 +1,243 @@
+/* --- Variables y Reset --- */
+:root {
+    --primary-color: #0056b3;
+    --primary-hover: #004494;
+    --bg-color: #f4f7f6;
+    --chat-bg: #ffffff;
+    --text-main: #333333;
+    --text-muted: #777777;
+    --msg-sent: #dcf8c6;
+    --msg-received: #f1f0f0;
+    --border-color: #dddddd;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- Utilidad para ocultar vistas --- */
+.hidden {
+    display: none !important;
+}
+
+.hidden-input {
+    display: none;
+}
+
+/* --- Contenedores Principales --- */
+.view-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* =========================================
+   ESTILOS: PANTALLA DE LOGIN
+   ========================================= */
+.login-box {
+    background: var(--chat-bg);
+    padding: 2.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.login-box h2 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.input-group {
+    margin-bottom: 1.2rem;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* =========================================
+   ESTILOS: PANTALLA DE CHAT
+   ========================================= */
+#chat-view {
+    padding: 20px;
+}
+
+.chat-layout {
+    background: var(--chat-bg);
+    width: 100%;
+    max-width: 900px;
+    height: 90vh;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Cabecera */
+.chat-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.room-info h3 {
+    margin: 0;
+}
+
+.room-info span {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+/* Área de Mensajes */
+.chat-messages {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    background-color: #ece5dd; /* Estilo clásico de chat */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message {
+    max-width: 75%;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    position: relative;
+    word-wrap: break-word;
+}
+
+/* Clases de mensajes para que JS las asigne */
+.message.sent {
+    background-color: var(--msg-sent);
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+}
+
+.message.received {
+    background-color: var(--msg-received);
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+}
+
+.message.system-msg {
+    background-color: transparent;
+    color: var(--text-muted);
+    align-self: center;
+    font-size: 0.85rem;
+    font-style: italic;
+    margin: 10px 0;
+}
+
+/* Footer / Input de texto */
+.chat-input-area {
+    padding: 1rem;
+    background-color: var(--chat-bg);
+    border-top: 1px solid var(--border-color);
+}
+
+#chat-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#message-input {
+    flex: 1;
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 25px;
+    outline: none;
+    font-size: 1rem;
+}
+
+#message-input:focus {
+    border-color: var(--primary-color);
+}
+
+/* =========================================
+   BOTONES
+   ========================================= */
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    width: 100%;
+}
+
+#btn-send {
+    width: auto;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid white;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.action-btn:hover {
+    opacity: 1;
+}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat en Tiempo Real</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div id="login-view" class="view-container">
+        <div class="login-box">
+            <h2>Bienvenido al Chat</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="username">Nombre de usuario</label>
+                    <input type="text" id="username" placeholder="Ej. Diego" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="room-select">Elige una sala temática</label>
+                    <select id="room-select" required>
+                        <option value="" disabled selected>Selecciona una sala...</option>
+                        <option value="general">General</option>
+                        <option value="juegos">Videojuegos</option>
+                        <option value="estudios">Estudios</option>
+                        <option value="tecnologia">Tecnología</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary">Entrar al Chat</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="chat-view" class="view-container hidden">
+        <div class="chat-layout">
+            
+            <header class="chat-header">
+                <div class="room-info">
+                    <h3 id="current-room-name">Sala: General</h3>
+                    <span id="online-users">Usuarios conectados: 0</span>
+                </div>
+                <button id="btn-leave" class="btn-secondary">Salir de la sala</button>
+            </header>
+
+            <main class="chat-messages" id="message-container">
+                <div class="message system-msg">
+                    <p>Bienvenido a la sala temática.</p>
+                </div>
+            </main>
+
+            <footer class="chat-input-area">
+                <form id="chat-form">
+                    
+                    <label for="file-upload" class="action-btn" title="Adjuntar archivo">
+                        📎
+                    </label>
+                    <input type="file" id="file-upload" class="hidden-input">
+
+                    <button type="button" id="btn-emoji" class="action-btn" title="Insertar emoji">
+                        😊
+                    </button>
+
+                    <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off" required>
+                    
+                    <button type="submit" id="btn-send" class="btn-primary">Enviar</button>
+                </form>
+            </footer>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/emoji-js@3.8.0/lib/emoji.min.js"></script>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <script src="./js/socket.js"></script>
+
+</body>
+</html>
