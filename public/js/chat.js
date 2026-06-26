@@ -34,6 +34,7 @@ chatForm.addEventListener('submit', (e) => {
 socket.on('message', (messageData) => {
     outputMessage(messageData);
     
+    saveMessageToHistory(messageData);
     // Hacemos scroll automático hacia abajo cuando llega un mensaje nuevo
     messageContainer.scrollTop = messageContainer.scrollHeight;
 });
